@@ -1,0 +1,18 @@
+@mixin center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin set-background($color) {
+  background-color: $color;
+  color: set-text-color($color);
+}
+
+@function set-text-color($bg-color) {
+  @if (lightness($bg-color) > 70) {
+    @return #000;
+  } @else {
+    @return #fff;
+  }
+}
