@@ -1,5 +1,11 @@
 class CalculatorModel {
   constructor() {}
+
+  calculateResult(expression) {
+    const result = eval(expression);
+
+    return result;
+  }
 }
 
 class CalculatorController {
@@ -27,5 +33,6 @@ class CalculatorView {
 }
 
 const calculatorView = new CalculatorView();
+const calculateModal = new CalculatorModel();
 
-calculatorView.printResult(333);
+calculatorView.printResult(calculateModal.calculateResult('2 + 2'));
