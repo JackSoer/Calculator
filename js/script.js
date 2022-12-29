@@ -16,6 +16,10 @@ class CalculatorView {
     this.expressionDiv.innerText += number;
   }
 
+  printResult(result) {
+    this.resultDiv.innerText = result;
+  }
+
   refresh() {
     this.expressionDiv.innerText = '';
     this.expressionDiv.innerText = '';
@@ -24,5 +28,4 @@ class CalculatorView {
 
 const calculatorView = new CalculatorView();
 
-calculatorView.printNumber(9);
-calculatorView.refresh();
+calculatorView.printResult(333);
