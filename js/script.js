@@ -1,38 +1,46 @@
 class CalculatorModel {
-  constructor() {}
+  constructor() {
+    this.expression;
+    this.result;
+  }
 
-  calculateResult(expression) {
-    const result = eval(expression);
+  updateExpression(expression) {
+    this.expression = expression;
+  }
 
-    return result;
+  calculateResult() {
+    this.result = eval(this.expression);
+
+    return this.result;
   }
 }
 
 class CalculatorController {
-  constructor() {}
+  constructor(model) {
+    this.model = model;
+  }
 }
 
 class CalculatorView {
-  constructor() {
+  constructor(controller) {
+    this.controller = controller;
+
     this.expressionDiv = document.querySelector('.calculator__expression');
     this.resultDiv = document.querySelector('.calculator__result');
   }
 
-  printNumber(number) {
-    this.expressionDiv.innerText += number;
+  printExpressionSymbol(symbol) {
+    this.expressionDiv.innerHTML += symbol;
   }
 
   printResult(result) {
-    this.resultDiv.innerText = result;
+    this.resultDiv.innerHTML = result;
   }
 
   refresh() {
-    this.expressionDiv.innerText = '';
+    this.expressionDiv.innerHTML = '';
     this.expressionDiv.innerText = '';
   }
 }
 
-const calculatorView = new CalculatorView();
-const calculateModal = new CalculatorModel();
-
-calculatorView.printResult(calculateModal.calculateResult('2 + 2'));
+const app = new CalculatorView(new CalculatorController(new CalculatorModel()));
