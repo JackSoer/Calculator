@@ -1,11 +1,15 @@
 class CalculatorModel {
   constructor() {
-    this.expression;
+    this.expression = '';
     this.result;
   }
 
-  updateExpression(expression) {
-    this.expression = expression;
+  updateExpression(expressionNewPart) {
+    this.expression += expressionNewPart;
+  }
+
+  getExpresion() {
+    return this.expression;
   }
 
   calculateResult() {
@@ -19,6 +23,17 @@ class CalculatorController {
   constructor(model) {
     this.model = model;
   }
+
+  numberBtnsHandler(e) {
+    const currentBtn = e.target;
+
+    this.model.updateExpression(currentBtn.innerText);
+
+    const expression = this.model.getExpresion();
+    const result = this.model.calculateResult();
+
+    return { expression, result };
+  }
 }
 
 class CalculatorView {
@@ -27,10 +42,22 @@ class CalculatorView {
 
     this.expressionDiv = document.querySelector('.calculator__expression');
     this.resultDiv = document.querySelector('.calculator__result');
+
+    this.bindListeners();
   }
 
-  printExpressionSymbol(symbol) {
-    this.expressionDiv.innerHTML += symbol;
+  onNumberBtnClick(e) {
+    const handlerResult = this.controller.numberBtnsHandler(e);
+
+    const resut = handlerResult.result;
+    const expression = handlerResult.expression;
+
+    this.printExpression(expression);
+    this.printResult(resut);
+  }
+
+  printExpression(expression) {
+    this.expressionDiv.innerHTML = expression;
   }
 
   printResult(result) {
@@ -40,6 +67,13 @@ class CalculatorView {
   refresh() {
     this.expressionDiv.innerHTML = '';
     this.expressionDiv.innerText = '';
+  }
+
+  bindListeners() {
+    const numberBtns = document.querySelectorAll('#num-btn');
+    numberBtns.forEach((numberBtn) =>
+      numberBtn.addEventListener('click', (e) => this.onNumberBtnClick(e))
+    );
   }
 }
 
