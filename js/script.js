@@ -50,7 +50,27 @@ class CalculatorController {
   numberBtnsHandler(e) {
     const currentNumber = e.target.innerText;
 
+    const firstExpressionNum = +this.model.getExpression()[0];
+
+    if (firstExpressionNum === 0) {
+      this.model.setExpression(currentNumber);
+
+      return this.model.getExpression();
+    }
+
     this.model.updateExpression(currentNumber);
+
+    return this.model.getExpression();
+  }
+
+  dotBtnHandler() {
+    const expression = this.model.getExpression();
+
+    if (expression.includes('.') === true) {
+      return this.model.getExpression();
+    }
+
+    this.model.updateExpression('.');
 
     return this.model.getExpression();
   }
@@ -79,7 +99,14 @@ class CalculatorView {
 
   onRefreshBtnClick() {
     this.controller.refreshBtnHandler();
+
     this.refresh();
+  }
+
+  onDotBtnClick() {
+    const expression = this.controller.dotBtnHandler();
+
+    this.printExpression(expression);
   }
 
   printExpression(expression) {
@@ -103,6 +130,9 @@ class CalculatorView {
 
     const refreshBtn = document.querySelector('#refresh-btn');
     refreshBtn.addEventListener('click', () => this.onRefreshBtnClick());
+
+    const dotBtn = document.querySelector('#dot-btn');
+    dotBtn.addEventListener('click', () => this.onDotBtnClick());
   }
 }
 
