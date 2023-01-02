@@ -5,16 +5,39 @@ class CalculatorModel {
   }
 
   updateExpression(expressionNewPart) {
-    this.expression += expressionNewPart;
+    const firstExpressionNum = +this.expression[0];
+
+    if (firstExpressionNum === 0) {
+      this.expression = expressionNewPart;
+    } else {
+      this.expression += expressionNewPart;
+    }
   }
 
-  getExpresion() {
+  getPackageData() {
+    const expression = this.expression;
+    const result = this.result;
+
+    return { expression, result };
+  }
+
+  setExpression(expression) {
+    this.expression = expression;
+  }
+
+  getExpression() {
     return this.expression;
   }
 
   calculateResult() {
     this.result = eval(this.expression);
+  }
 
+  setResult(result) {
+    this.result = result;
+  }
+
+  getResult() {
     return this.result;
   }
 }
@@ -25,14 +48,16 @@ class CalculatorController {
   }
 
   numberBtnsHandler(e) {
-    const currentBtn = e.target;
+    const currentNumber = e.target.innerText;
 
-    this.model.updateExpression(currentBtn.innerText);
+    this.model.updateExpression(currentNumber);
 
-    const expression = this.model.getExpresion();
-    const result = this.model.calculateResult();
+    return this.model.getExpression();
+  }
 
-    return { expression, result };
+  refreshBtnHandler() {
+    this.model.setExpression('');
+    this.model.setResult('');
   }
 }
 
@@ -47,13 +72,14 @@ class CalculatorView {
   }
 
   onNumberBtnClick(e) {
-    const handlerResult = this.controller.numberBtnsHandler(e);
-
-    const resut = handlerResult.result;
-    const expression = handlerResult.expression;
+    const expression = this.controller.numberBtnsHandler(e);
 
     this.printExpression(expression);
-    this.printResult(resut);
+  }
+
+  onRefreshBtnClick() {
+    this.controller.refreshBtnHandler();
+    this.refresh();
   }
 
   printExpression(expression) {
@@ -66,7 +92,7 @@ class CalculatorView {
 
   refresh() {
     this.expressionDiv.innerHTML = '';
-    this.expressionDiv.innerText = '';
+    this.resultDiv.innerHTML = '';
   }
 
   bindListeners() {
@@ -74,6 +100,9 @@ class CalculatorView {
     numberBtns.forEach((numberBtn) =>
       numberBtn.addEventListener('click', (e) => this.onNumberBtnClick(e))
     );
+
+    const refreshBtn = document.querySelector('#refresh-btn');
+    refreshBtn.addEventListener('click', () => this.onRefreshBtnClick());
   }
 }
 
