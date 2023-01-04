@@ -1,16 +1,28 @@
 class CalculatorModel {
   constructor() {
     this.expression = '';
-    this.result;
+    this.result = '';
   }
 
   updateExpression(expressionNewPart) {
-    const firstExpressionNum = +this.expression[0];
+    this.expression += expressionNewPart;
+  }
 
-    if (firstExpressionNum === 0) {
-      this.expression = expressionNewPart;
+  addMathOperation(operation) {
+    const lastExpressionElem = this.expression[this.expression.length - 1];
+
+    if (!isNaN(lastExpressionElem)) {
+      this.updateExpression(operation);
+    }
+  }
+
+  addNumber(number) {
+    this.calculateResult();
+
+    if (+this.result === 0 && this.isExpression()) {
+      this.setExpression(number);
     } else {
-      this.expression += expressionNewPart;
+      this.updateExpression(number);
     }
   }
 
@@ -30,7 +42,22 @@ class CalculatorModel {
   }
 
   calculateResult() {
-    this.result = eval(this.expression);
+    if (this.isExpression()) {
+      this.result = eval(this.expression);
+    }
+  }
+
+  isExpression() {
+    const lastElementIsNumber = !isNaN(
+      this.expression[this.expression.length - 1]
+    );
+    const expHaveMathOperation = this.expression.match(/[+/-/*//]/);
+
+    if (lastElementIsNumber && expHaveMathOperation) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   setResult(result) {
@@ -50,27 +77,27 @@ class CalculatorController {
   numberBtnsHandler(e) {
     const currentNumber = e.target.innerText;
 
-    const firstExpressionNum = +this.model.getExpression()[0];
+    this.model.addNumber(currentNumber);
 
-    if (firstExpressionNum === 0) {
-      this.model.setExpression(currentNumber);
+    this.model.calculateResult();
 
-      return this.model.getExpression();
-    }
+    return this.model.getPackageData();
+  }
 
-    this.model.updateExpression(currentNumber);
+  dotBtnHandler() {
+    this.model.addMathOperation('.');
 
     return this.model.getExpression();
   }
 
-  dotBtnHandler() {
-    const expression = this.model.getExpression();
+  plusBtnHandler() {
+    this.model.addMathOperation('+');
 
-    if (expression.includes('.') === true) {
-      return this.model.getExpression();
-    }
+    return this.model.getExpression();
+  }
 
-    this.model.updateExpression('.');
+  minusBtnHandler() {
+    this.model.addMathOperation('-');
 
     return this.model.getExpression();
   }
@@ -92,9 +119,13 @@ class CalculatorView {
   }
 
   onNumberBtnClick(e) {
-    const expression = this.controller.numberBtnsHandler(e);
+    const data = this.controller.numberBtnsHandler(e);
+
+    const expression = data.expression;
+    const result = data.result;
 
     this.printExpression(expression);
+    this.printResult(result);
   }
 
   onRefreshBtnClick() {
@@ -108,6 +139,14 @@ class CalculatorView {
 
     this.printExpression(expression);
   }
+
+  onPlusBtnClick() {
+    const expression = this.controller.plusBtnHandler();
+
+    this.printExpression(expression);
+  }
+
+  onMinusBtnClick() {}
 
   printExpression(expression) {
     this.expressionDiv.innerHTML = expression;
@@ -133,6 +172,11 @@ class CalculatorView {
 
     const dotBtn = document.querySelector('#dot-btn');
     dotBtn.addEventListener('click', () => this.onDotBtnClick());
+
+    const plusBtn = document.querySelector('#plus');
+    plusBtn.addEventListener('click', () => this.onPlusBtnClick());
+    const minusBtn = document.querySelector('#minus');
+    minusBtn.addEventListener('click', () => this.onMinusBtnClick());
   }
 }
 
