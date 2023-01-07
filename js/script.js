@@ -1,29 +1,71 @@
 class CalculatorModel {
   constructor() {
     this.expression = '';
-    this.result = '';
+    this.result = null;
+
+    this.lastNumberHasDot = false;
+    this.willBeNewNumber = true;
   }
 
   updateExpression(expressionNewPart) {
     this.expression += expressionNewPart;
   }
 
-  addMathOperation(operation) {
+  addSimpleMathOperation(operation) {
     const lastExpressionElem = this.expression[this.expression.length - 1];
 
-    if (!isNaN(lastExpressionElem)) {
+    if (
+      !isNaN(lastExpressionElem) ||
+      (operation === '-' && this.expression.length === 0)
+    ) {
       this.updateExpression(operation);
+
+      this.lastNumberHasDot = false;
+      this.willBeNewNumber = true;
     }
   }
 
   addNumber(number) {
-    this.calculateResult();
+    if (this.willBeNewNumber === true) {
+      this.lastNumberStartIndex = this.expression.length;
+    }
 
-    if (+this.result === 0 && this.isExpression()) {
-      this.setExpression(number);
+    const lastNumber = this.expression.slice(this.lastNumberStartIndex);
+
+    if (this.willBeNewNumber || this.lastNumberHasDot) {
+      this.updateExpression(number);
+    } else if (+lastNumber === 0) {
+      // Incorrect number validation like 03, -05 etc
+      const expressionWithoutLastNum = this.expression.slice(
+        0,
+        this.lastNumberStartIndex
+      );
+
+      this.setExpression(expressionWithoutLastNum);
+      this.updateExpression(number);
     } else {
       this.updateExpression(number);
     }
+
+    this.willBeNewNumber = false;
+  }
+
+  addDot() {
+    const lastExpressionElem = this.expression[this.expression.length - 1];
+
+    if (this.lastNumberHasDot !== true && !isNaN(lastExpressionElem)) {
+      this.updateExpression('.');
+
+      this.lastNumberHasDot = true;
+    }
+  }
+
+  refresh() {
+    this.expression = '';
+    this.result = '';
+
+    this.lastNumberHasDot = false;
+    this.willBeNewNumber = true;
   }
 
   getPackageData() {
@@ -51,7 +93,7 @@ class CalculatorModel {
     const lastElementIsNumber = !isNaN(
       this.expression[this.expression.length - 1]
     );
-    const expHaveMathOperation = this.expression.match(/[+/-/*//]/);
+    const expHaveMathOperation = this.expression.match(/[+\-\*\/]/);
 
     if (lastElementIsNumber && expHaveMathOperation) {
       return true;
@@ -85,26 +127,27 @@ class CalculatorController {
   }
 
   dotBtnHandler() {
-    this.model.addMathOperation('.');
+    this.model.addDot();
 
     return this.model.getExpression();
   }
 
   plusBtnHandler() {
-    this.model.addMathOperation('+');
+    this.model.addSimpleMathOperation('+');
 
     return this.model.getExpression();
   }
 
   minusBtnHandler() {
-    this.model.addMathOperation('-');
+    this.model.addSimpleMathOperation('-');
 
     return this.model.getExpression();
   }
 
   refreshBtnHandler() {
-    this.model.setExpression('');
-    this.model.setResult('');
+    this.model.refresh();
+
+    return this.model.getPackageData();
   }
 }
 
@@ -129,9 +172,13 @@ class CalculatorView {
   }
 
   onRefreshBtnClick() {
-    this.controller.refreshBtnHandler();
+    const data = this.controller.refreshBtnHandler();
 
-    this.refresh();
+    const expression = data.expression;
+    const result = data.result;
+
+    this.printExpression(expression);
+    this.printResult(result);
   }
 
   onDotBtnClick() {
@@ -146,7 +193,11 @@ class CalculatorView {
     this.printExpression(expression);
   }
 
-  onMinusBtnClick() {}
+  onMinusBtnClick() {
+    const expression = this.controller.minusBtnHandler();
+
+    this.printExpression(expression);
+  }
 
   printExpression(expression) {
     this.expressionDiv.innerHTML = expression;
@@ -154,11 +205,6 @@ class CalculatorView {
 
   printResult(result) {
     this.resultDiv.innerHTML = result;
-  }
-
-  refresh() {
-    this.expressionDiv.innerHTML = '';
-    this.resultDiv.innerHTML = '';
   }
 
   bindListeners() {
