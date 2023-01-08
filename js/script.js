@@ -8,6 +8,8 @@ class CalculatorModel {
     this.lastNumberStartIndex = null;
     this.lastNumberHasDot = null;
     this.lastElementIsNumber = null;
+    this.lastElementIsOperation = null;
+    this.minusCaseWorked = null;
   }
 
   updateExpression(expressionNewPart) {
@@ -27,12 +29,44 @@ class CalculatorModel {
       (isMinus && lastElemIsMultiply) ||
       (isMinus && lastElemIsDivide);
 
-    if (this.lastElementIsNumber || isMinusCase) {
+    const expressionIsOnlyMinus = this.expression === '-';
+
+    if (this.lastElementIsNumber) {
       this.updateExpression(operation);
 
+      this.minusCaseWorked = false;
       this.lastNumberHasDot = false;
       this.willBeNewNumber = true;
       this.lastElementIsNumber = false;
+      this.lastElementIsOperation = true;
+    } else if (isMinusCase) {
+      this.updateExpression(operation);
+
+      this.minusCaseWorked = true;
+      this.lastNumberHasDot = false;
+      this.willBeNewNumber = true;
+      this.lastElementIsNumber = false;
+      this.lastElementIsOperation = true;
+    } else if (this.minusCaseWorked && !expressionIsOnlyMinus) {
+      const newExpression = this.expression.slice(0, -2);
+      this.setExpression(newExpression);
+      this.updateExpression(operation);
+
+      this.minusCaseWorked = false;
+      this.lastNumberHasDot = false;
+      this.willBeNewNumber = true;
+      this.lastElementIsNumber = false;
+      this.lastElementIsOperation = true;
+    } else if (this.lastElementIsOperation && !expressionIsOnlyMinus) {
+      const newExpression = this.expression.slice(0, -1);
+      this.setExpression(newExpression);
+      this.updateExpression(operation);
+
+      this.minusCaseWorked = false;
+      this.lastNumberHasDot = false;
+      this.willBeNewNumber = true;
+      this.lastElementIsNumber = false;
+      this.lastElementIsOperation = true;
     }
   }
 
@@ -60,6 +94,8 @@ class CalculatorModel {
 
     this.lastElementIsNumber = true;
     this.willBeNewNumber = false;
+    this.lastElementIsOperation = false;
+    this.minusCaseWorked = false;
   }
 
   addDot() {
@@ -68,6 +104,8 @@ class CalculatorModel {
 
       this.lastNumberHasDot = true;
       this.lastElementIsNumber = false;
+      this.lastElementIsOperation = false;
+      this.minusCaseWorked = false;
     }
   }
 
@@ -90,10 +128,12 @@ class CalculatorModel {
     this.expression = '';
     this.result = '';
 
-    this.lastNumberHasDot = false;
+    this.lastNumberHasDot = null;
     this.willBeNewNumber = true;
-    this.lastElementIsNumber = false;
+    this.lastElementIsNumber = null;
     this.lastNumberStartIndex = null;
+    this.lastElementIsOperation = null;
+    this.minusCaseWorked = null;
   }
 
   getPackageData() {
