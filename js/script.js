@@ -3,11 +3,11 @@ class CalculatorModel {
     this.expression = '';
     this.result = null;
 
+    this.willBeNewNumber = true;
     this.lastNumber = null;
     this.lastNumberStartIndex = null;
-    this.lastNumberHasDot = false;
-    this.willBeNewNumber = true;
-    this.lastElementIsNumber = false;
+    this.lastNumberHasDot = null;
+    this.lastElementIsNumber = null;
   }
 
   updateExpression(expressionNewPart) {
