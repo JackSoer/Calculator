@@ -10,6 +10,7 @@ class CalculatorModel {
     this.lastElementIsNumber = null;
     this.lastElementIsOperation = null;
     this.minusCaseWorked = null;
+    this.lastElementIsPercentage = null;
   }
 
   updateExpression(expressionNewPart) {
@@ -31,7 +32,7 @@ class CalculatorModel {
 
     const expressionIsOnlyMinus = this.expression === '-';
 
-    if (this.lastElementIsNumber) {
+    if (this.lastElementIsNumber || this.lastElementIsPercentage) {
       this.updateExpression(operation);
 
       this.minusCaseWorked = false;
@@ -39,6 +40,7 @@ class CalculatorModel {
       this.willBeNewNumber = true;
       this.lastElementIsNumber = false;
       this.lastElementIsOperation = true;
+      this.lastElementIsPercentage = false;
     } else if (isMinusCase) {
       this.updateExpression(operation);
 
@@ -47,6 +49,7 @@ class CalculatorModel {
       this.willBeNewNumber = true;
       this.lastElementIsNumber = false;
       this.lastElementIsOperation = true;
+      this.lastElementIsPercentage = false;
     } else if (this.minusCaseWorked && !expressionIsOnlyMinus) {
       const newExpression = this.expression.slice(0, -2);
       this.setExpression(newExpression);
@@ -57,6 +60,7 @@ class CalculatorModel {
       this.willBeNewNumber = true;
       this.lastElementIsNumber = false;
       this.lastElementIsOperation = true;
+      this.lastElementIsPercentage = false;
     } else if (this.lastElementIsOperation && !expressionIsOnlyMinus) {
       const newExpression = this.expression.slice(0, -1);
       this.setExpression(newExpression);
@@ -67,6 +71,20 @@ class CalculatorModel {
       this.willBeNewNumber = true;
       this.lastElementIsNumber = false;
       this.lastElementIsOperation = true;
+      this.lastElementIsPercentage = false;
+    }
+  }
+
+  addPercentage() {
+    if (this.lastElementIsNumber) {
+      this.updateExpression('/ 100');
+
+      this.minusCaseWorked = false;
+      this.lastNumberHasDot = false;
+      this.willBeNewNumber = false;
+      this.lastElementIsNumber = false;
+      this.lastElementIsOperation = false;
+      this.lastElementIsPercentage = true;
     }
   }
 
@@ -77,7 +95,9 @@ class CalculatorModel {
 
     this.lastNumber = String(this.expression).slice(this.lastNumberStartIndex);
 
-    if (this.willBeNewNumber || this.lastNumberHasDot) {
+    if (this.lastElementIsPercentage) {
+      return;
+    } else if (this.willBeNewNumber || this.lastNumberHasDot) {
       this.updateExpression(number);
     } else if (+this.lastNumber === 0) {
       // Incorrect number validation like 03, -05 etc
@@ -96,6 +116,7 @@ class CalculatorModel {
     this.willBeNewNumber = false;
     this.lastElementIsOperation = false;
     this.minusCaseWorked = false;
+    this.lastElementIsPercentage = false;
   }
 
   addDot() {
@@ -106,6 +127,7 @@ class CalculatorModel {
       this.lastElementIsNumber = false;
       this.lastElementIsOperation = false;
       this.minusCaseWorked = false;
+      this.lastElementIsPercentage = false;
     }
   }
 
@@ -134,6 +156,7 @@ class CalculatorModel {
     this.lastNumberStartIndex = null;
     this.lastElementIsOperation = null;
     this.minusCaseWorked = null;
+    this.lastElementIsPercentage = null;
   }
 
   getPackageData() {
@@ -161,6 +184,8 @@ class CalculatorModel {
     const expHasMathOperation = this.expression.match(/[+\-\*\/]/);
 
     if (this.lastElementIsNumber && expHasMathOperation) {
+      return true;
+    } else if (this.lastElementIsPercentage) {
       return true;
     } else {
       return false;
@@ -221,6 +246,14 @@ class CalculatorController {
     return this.model.getExpression();
   }
 
+  percentageBtnHandler() {
+    this.model.addPercentage();
+
+    this.model.calculateResult();
+
+    return this.model.getPackageData();
+  }
+
   equalBtnHandler() {
     this.model.equal();
 
@@ -250,7 +283,9 @@ class CalculatorView {
     const expression = data.expression;
     const result = data.result;
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
     this.printResult(result);
   }
 
@@ -260,38 +295,62 @@ class CalculatorView {
     const expression = data.expression;
     const result = data.result;
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
     this.printResult(result);
   }
 
   onDotBtnClick() {
     const expression = this.controller.dotBtnHandler();
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
   }
 
   onPlusBtnClick() {
     const expression = this.controller.plusBtnHandler();
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
   }
 
   onMinusBtnClick() {
     const expression = this.controller.minusBtnHandler();
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
   }
 
   onDivideBtnClick() {
     const expression = this.controller.divideBtnHandler();
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
   }
 
   onMultiplyBtnClick() {
     const expression = this.controller.multiplyBtnHandler();
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
+  }
+
+  onPercentageClick() {
+    const data = this.controller.percentageBtnHandler();
+
+    const expression = data.expression;
+    const result = data.result;
+
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
+    this.printResult(result);
   }
 
   onEqualBtnClick() {
@@ -300,8 +359,16 @@ class CalculatorView {
     const expression = data.expression;
     const result = data.result;
 
-    this.printExpression(expression);
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
     this.printResult(result);
+  }
+
+  getPrettyExpression(expression) {
+    const prettyExpression = expression.split('/ 100').join('%');
+
+    return prettyExpression;
   }
 
   printExpression(expression) {
@@ -328,6 +395,9 @@ class CalculatorView {
     divideBtn.addEventListener('click', () => this.onDivideBtnClick());
     const multiplyBtn = document.querySelector('#multiply');
     multiplyBtn.addEventListener('click', () => this.onMultiplyBtnClick());
+
+    const percentageBtn = document.querySelector('#percentage');
+    percentageBtn.addEventListener('click', () => this.onPercentageClick());
 
     const equalBtn = document.querySelector('#equal');
     equalBtn.addEventListener('click', () => this.onEqualBtnClick());
