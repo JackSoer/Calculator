@@ -243,7 +243,7 @@ class CalculatorModel {
 
   calculateResult() {
     if (this.isComputedExpression()) {
-      this.result = eval(this.expression);
+      this.result = parseFloat(eval(this.expression).toPrecision(12));
     }
   }
 
