@@ -159,6 +159,73 @@ class CalculatorModel {
     this.lastElementIsPercentage = null;
   }
 
+  toogleSignLastNumber() {
+    this.lastOperationIndex = this.lastNumberStartIndex - 1;
+    this.lastOperation = this.expression[this.lastOperationIndex];
+
+    this.lastNumberIsPositive = this.lastOperation !== '-';
+
+    if (!this.lastNumberIsPositive) {
+      this.changeLastNumberToPositive();
+    } else if (this.lastNumberIsPositive) {
+      this.changeLastNumberToNegative();
+    }
+  }
+
+  changeLastNumberToNegative() {
+    if (this.lastOperation === '+') {
+      this.expression = this.replaceCharacterAtString(
+        this.expression,
+        this.lastOperationIndex,
+        '-'
+      );
+    } else {
+      this.expression = this.insertCharacterAtString(
+        this.expression,
+        this.lastOperationIndex + 1,
+        '-'
+      );
+
+      this.lastNumberStartIndex++;
+    }
+  }
+
+  changeLastNumberToPositive() {
+    const prevSignIsNumber = !isNaN(
+      this.expression[this.lastOperationIndex - 1]
+    );
+
+    if (prevSignIsNumber) {
+      this.expression = this.replaceCharacterAtString(
+        this.expression,
+        this.lastOperationIndex,
+        '+'
+      );
+    } else if (!prevSignIsNumber) {
+      this.expression = this.replaceCharacterAtString(
+        this.expression,
+        this.lastOperationIndex,
+        ''
+      );
+
+      this.lastNumberStartIndex--;
+    }
+  }
+
+  replaceCharacterAtString(string, index, char) {
+    const newString = string.split('');
+    newString[index] = char;
+
+    return newString.join('');
+  }
+
+  insertCharacterAtString(string, index, char) {
+    const firstPart = string.slice(0, index);
+    const secondPart = string.slice(index);
+
+    return firstPart + char + secondPart;
+  }
+
   getPackageData() {
     const expression = this.expression;
     const result = this.result;
@@ -181,7 +248,8 @@ class CalculatorModel {
   }
 
   isComputedExpression() {
-    const expHasMathOperation = this.expression.match(/[+\-\*\/]/);
+    const expression = this.expression.slice(1);
+    const expHasMathOperation = expression.match(/[+\-\*\/]/);
 
     if (this.lastElementIsNumber && expHasMathOperation) {
       return true;
@@ -262,6 +330,14 @@ class CalculatorController {
 
   refreshBtnHandler() {
     this.model.refresh();
+
+    return this.model.getPackageData();
+  }
+
+  plusMinusBtnHandler() {
+    this.model.toogleSignLastNumber();
+
+    this.model.calculateResult();
 
     return this.model.getPackageData();
   }
@@ -365,6 +441,18 @@ class CalculatorView {
     this.printResult(result);
   }
 
+  onPlusMinusBtnClick() {
+    const data = this.controller.plusMinusBtnHandler();
+
+    const expression = data.expression;
+    const result = data.result;
+
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
+    this.printResult(result);
+  }
+
   getPrettyExpression(expression) {
     const prettyExpression = expression.split('/ 100').join('%');
 
@@ -404,6 +492,9 @@ class CalculatorView {
 
     const refreshBtn = document.querySelector('#refresh-btn');
     refreshBtn.addEventListener('click', () => this.onRefreshBtnClick());
+
+    const plusMinusBtn = document.querySelector('#plus-minus-btn');
+    plusMinusBtn.addEventListener('click', () => this.onPlusMinusBtnClick());
   }
 }
 
