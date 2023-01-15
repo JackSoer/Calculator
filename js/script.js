@@ -229,17 +229,21 @@ class CalculatorModel {
     this.lastNumber = '';
     let lastNumberFound = false;
 
-    for (let i = this.expression.length - 1; i >= 0; i--) {
-      if (!isNaN(this.expression[i]) || this.expression[i] === '.') {
-        this.lastNumber += this.expression[i];
+    const expression = this.expression.split('/ 100').join('%');
+
+    for (let i = expression.length - 1; i >= 0; i--) {
+      if (!isNaN(expression[i]) || expression[i] === '.') {
+        this.lastNumber += expression[i];
 
         lastNumberFound = true;
-      } else if (isNaN(this.expression[i]) && lastNumberFound) {
+      } else if (isNaN(expression[i]) && lastNumberFound) {
         break;
       }
     }
 
     this.lastNumber = this.lastNumber.split('').reverse().join('');
+
+    console.log(this.lastNumber);
   }
 
   refreshLastNumberInfo() {
