@@ -478,7 +478,31 @@ class CalculatorView {
   }
 
   getPrettyExpression(expression) {
-    const prettyExpression = expression.split('/ 100').join('%');
+    const plusIcon = this.plusBtn.children[0].cloneNode(true);
+    const minusIcon = this.minusBtn.children[0].cloneNode(true);
+    const divideIcon = this.divideBtn.children[0].cloneNode(true);
+    const multiplyIcon = this.multiplyBtn.children[0].cloneNode(true);
+    const percentageIcon = this.percentageBtn.children[0].cloneNode(true);
+
+    expression = expression.split('/ 100').join('%');
+
+    let prettyExpression = '';
+
+    for (let elem of expression) {
+      if (elem === '+') {
+        elem = plusIcon.outerHTML;
+      } else if (elem === '-') {
+        elem = minusIcon.outerHTML;
+      } else if (elem === '*') {
+        elem = multiplyIcon.outerHTML;
+      } else if (elem === '/') {
+        elem = divideIcon.outerHTML;
+      } else if (elem === '%') {
+        elem = percentageIcon.outerHTML;
+      }
+
+      prettyExpression += elem;
+    }
 
     return prettyExpression;
   }
@@ -492,36 +516,42 @@ class CalculatorView {
   }
 
   bindListeners() {
-    const numberBtns = document.querySelectorAll('#num-btn');
-    numberBtns.forEach((numberBtn) =>
+    this.numberBtns = document.querySelectorAll('#num-btn');
+    this.numberBtns.forEach((numberBtn) =>
       numberBtn.addEventListener('click', (e) => this.onNumberBtnClick(e))
     );
-    const dotBtn = document.querySelector('#dot-btn');
-    dotBtn.addEventListener('click', () => this.onDotBtnClick());
+    this.dotBtn = document.querySelector('#dot-btn');
+    this.dotBtn.addEventListener('click', () => this.onDotBtnClick());
 
-    const plusBtn = document.querySelector('#plus');
-    plusBtn.addEventListener('click', () => this.onPlusBtnClick());
-    const minusBtn = document.querySelector('#minus');
-    minusBtn.addEventListener('click', () => this.onMinusBtnClick());
-    const divideBtn = document.querySelector('#divide');
-    divideBtn.addEventListener('click', () => this.onDivideBtnClick());
-    const multiplyBtn = document.querySelector('#multiply');
-    multiplyBtn.addEventListener('click', () => this.onMultiplyBtnClick());
+    this.plusBtn = document.querySelector('#plus');
+    this.plusBtn.addEventListener('click', () => this.onPlusBtnClick());
+    this.minusBtn = document.querySelector('#minus');
+    this.minusBtn.addEventListener('click', () => this.onMinusBtnClick());
+    this.divideBtn = document.querySelector('#divide');
+    this.divideBtn.addEventListener('click', () => this.onDivideBtnClick());
+    this.multiplyBtn = document.querySelector('#multiply');
+    this.multiplyBtn.addEventListener('click', () => this.onMultiplyBtnClick());
 
-    const percentageBtn = document.querySelector('#percentage');
-    percentageBtn.addEventListener('click', () => this.onPercentageClick());
+    this.percentageBtn = document.querySelector('#percentage');
+    this.percentageBtn.addEventListener('click', () =>
+      this.onPercentageClick()
+    );
 
-    const equalBtn = document.querySelector('#equal');
-    equalBtn.addEventListener('click', () => this.onEqualBtnClick());
+    this.equalBtn = document.querySelector('#equal');
+    this.equalBtn.addEventListener('click', () => this.onEqualBtnClick());
 
-    const allCleanBtn = document.querySelector('#all-clean');
-    allCleanBtn.addEventListener('click', () => this.onAllCleanBtnClick());
+    this.allCleanBtn = document.querySelector('#all-clean');
+    this.allCleanBtn.addEventListener('click', () => this.onAllCleanBtnClick());
 
-    const backspaceBtn = document.querySelector('#backspace-btn');
-    backspaceBtn.addEventListener('click', () => this.onBackspaceBtnClick());
+    this.backspaceBtn = document.querySelector('#backspace-btn');
+    this.backspaceBtn.addEventListener('click', () =>
+      this.onBackspaceBtnClick()
+    );
 
-    const plusMinusBtn = document.querySelector('#plus-minus-btn');
-    plusMinusBtn.addEventListener('click', () => this.onPlusMinusBtnClick());
+    this.plusMinusBtn = document.querySelector('#plus-minus-btn');
+    this.plusMinusBtn.addEventListener('click', () =>
+      this.onPlusMinusBtnClick()
+    );
   }
 }
 

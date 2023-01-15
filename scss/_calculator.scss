@@ -58,11 +58,21 @@
   &__expression {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     white-space: nowrap;
     overflow: hidden;
     width: 100%;
     font-size: 55px;
     font-weight: 700;
+
+    svg {
+      height: 40px;
+      width: 40px;
+      min-height: 40px;
+      min-width: 40px;
+      fill: $orange-text;
+      stroke: $orange-text;
+    }
   }
 
   &__result {
@@ -98,6 +108,12 @@
       height: 25px;
       width: 25px;
       fill: #fff;
+    }
+
+    &-rotate {
+      svg {
+        transform: scaleX(-1);
+      }
     }
 
     &--green {
