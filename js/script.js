@@ -2,98 +2,10 @@ class CalculatorModel {
   constructor() {
     this.expression = '';
     this.result = null;
-
-    this.willBeNewNumber = true;
-    this.lastNumber = null;
-    this.lastNumberStartIndex = null;
-    this.lastNumberHasDot = null;
-    this.lastElementIsNumber = null;
-    this.lastElementIsOperation = null;
-    this.minusCaseWorked = null;
-    this.lastElementIsPercentage = null;
-  }
-
-  updateExpression(expressionNewPart) {
-    this.expression += expressionNewPart;
-  }
-
-  addSimpleMathOperation(operation) {
-    const lastExpressionElem = this.expression[this.expression.length - 1];
-
-    const isMinus = operation === '-';
-    const expressionIsEmpty = this.expression.length === 0;
-    const lastElemIsDivide = lastExpressionElem === '/';
-    const lastElemIsMultiply = lastExpressionElem === '*';
-
-    const isMinusCase =
-      (isMinus && expressionIsEmpty) ||
-      (isMinus && lastElemIsMultiply) ||
-      (isMinus && lastElemIsDivide);
-
-    const expressionIsOnlyMinus = this.expression === '-';
-
-    if (this.lastElementIsNumber || this.lastElementIsPercentage) {
-      this.updateExpression(operation);
-
-      this.minusCaseWorked = false;
-      this.lastNumberHasDot = false;
-      this.willBeNewNumber = true;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = true;
-      this.lastElementIsPercentage = false;
-    } else if (isMinusCase) {
-      this.updateExpression(operation);
-
-      this.minusCaseWorked = true;
-      this.lastNumberHasDot = false;
-      this.willBeNewNumber = true;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = true;
-      this.lastElementIsPercentage = false;
-    } else if (this.minusCaseWorked && !expressionIsOnlyMinus) {
-      const newExpression = this.expression.slice(0, -2);
-      this.setExpression(newExpression);
-      this.updateExpression(operation);
-
-      this.minusCaseWorked = false;
-      this.lastNumberHasDot = false;
-      this.willBeNewNumber = true;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = true;
-      this.lastElementIsPercentage = false;
-    } else if (this.lastElementIsOperation && !expressionIsOnlyMinus) {
-      const newExpression = this.expression.slice(0, -1);
-      this.setExpression(newExpression);
-      this.updateExpression(operation);
-
-      this.minusCaseWorked = false;
-      this.lastNumberHasDot = false;
-      this.willBeNewNumber = true;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = true;
-      this.lastElementIsPercentage = false;
-    }
-  }
-
-  addPercentage() {
-    if (this.lastElementIsNumber) {
-      this.updateExpression('/ 100');
-
-      this.minusCaseWorked = false;
-      this.lastNumberHasDot = false;
-      this.willBeNewNumber = false;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = false;
-      this.lastElementIsPercentage = true;
-    }
   }
 
   addNumber(number) {
-    if (this.willBeNewNumber === true) {
-      this.lastNumberStartIndex = this.expression.length;
-    }
-
-    this.lastNumber = String(this.expression).slice(this.lastNumberStartIndex);
+    this.refreshAllState();
 
     if (this.lastElementIsPercentage) {
       return;
@@ -106,34 +18,73 @@ class CalculatorModel {
         this.lastNumberStartIndex
       );
 
-      this.setExpression(expressionWithoutLastNum);
+      this.expression = expressionWithoutLastNum;
       this.updateExpression(number);
     } else {
       this.updateExpression(number);
     }
 
-    this.lastElementIsNumber = true;
-    this.willBeNewNumber = false;
-    this.lastElementIsOperation = false;
-    this.minusCaseWorked = false;
-    this.lastElementIsPercentage = false;
+    this.refreshAllState();
   }
 
   addDot() {
     if (this.lastNumberHasDot !== true && this.lastElementIsNumber) {
       this.updateExpression('.');
 
-      this.lastNumberHasDot = true;
-      this.lastElementIsNumber = false;
-      this.lastElementIsOperation = false;
-      this.minusCaseWorked = false;
-      this.lastElementIsPercentage = false;
+      this.refreshAllState();
+    }
+  }
+
+  addSimpleMathOperation(operation) {
+    this.refreshLastExpressionElem();
+    this.refreshLastExpressionElemInfo();
+
+    const expressionIsEmpty = this.expression.length === 0;
+    const expressionIsOnlyMinus = this.expression === '-';
+
+    const isMinus = operation === '-';
+    const lastElemIsDivide = this.lastExpressionElem === '/';
+    const lastElemIsMultiply = this.lastExpressionElem === '*';
+
+    const isMinusCase =
+      (isMinus && expressionIsEmpty) ||
+      (isMinus && lastElemIsMultiply) ||
+      (isMinus && lastElemIsDivide);
+
+    if (this.lastElementIsNumber || this.lastElementIsPercentage) {
+      this.updateExpression(operation);
+
+      this.refreshAllState();
+    } else if (isMinusCase) {
+      this.updateExpression(operation);
+
+      this.refreshAllState();
+    } else if (this.minusCaseWorked && !expressionIsOnlyMinus) {
+      const newExpression = this.expression.slice(0, -2);
+      this.expression = newExpression;
+      this.updateExpression(operation);
+
+      this.refreshAllState();
+    } else if (this.lastElementIsOperation && !expressionIsOnlyMinus) {
+      const newExpression = this.expression.slice(0, -1);
+      this.expression = newExpression;
+      this.updateExpression(operation);
+
+      this.refreshAllState();
+    }
+  }
+
+  addPercentage() {
+    if (this.lastElementIsNumber) {
+      this.updateExpression('/ 100');
+
+      this.refreshAllState();
     }
   }
 
   equal() {
     if (this.isComputedExpression()) {
-      if (String(this.getResult()).includes('.')) {
+      if (String(this.result).includes('.')) {
         this.lastNumberHasDot = true;
       } else {
         this.lastNumberHasDot = false;
@@ -141,48 +92,61 @@ class CalculatorModel {
 
       this.lastNumberStartIndex = 0;
 
-      this.setExpression(String(this.getResult()));
-      this.setResult('');
+      this.expression = String(this.result);
+      this.result = '';
     }
   }
 
-  refresh() {
+  allClean() {
     this.expression = '';
     this.result = '';
 
-    this.lastNumberHasDot = null;
-    this.willBeNewNumber = true;
-    this.lastElementIsNumber = null;
-    this.lastNumberStartIndex = null;
-    this.lastElementIsOperation = null;
-    this.minusCaseWorked = null;
-    this.lastElementIsPercentage = null;
+    this.refreshAllState();
+  }
+
+  backspace() {
+    if (this.expression === '') {
+      this.allClean();
+
+      return;
+    }
+
+    this.lastElementIsPercentage = this.expression.slice(-5) === '/ 100';
+
+    if (this.lastElementIsPercentage) {
+      this.expression = this.expression.slice(0, -5);
+    } else {
+      this.expression = this.expression.slice(0, -1);
+    }
+
+    this.refreshAllState();
   }
 
   toogleSignLastNumber() {
-    this.lastOperationIndex = this.lastNumberStartIndex - 1;
-    this.lastOperation = this.expression[this.lastOperationIndex];
+    const lastOperationIndex = this.lastNumberStartIndex - 1;
+    const lastOperation = this.expression[lastOperationIndex];
 
-    this.lastNumberIsPositive = this.lastOperation !== '-';
+    const lastNumberIsPositive =
+      lastOperation !== '-' && this.expression !== '';
 
-    if (!this.lastNumberIsPositive) {
-      this.changeLastNumberToPositive();
-    } else if (this.lastNumberIsPositive) {
-      this.changeLastNumberToNegative();
+    if (!lastNumberIsPositive) {
+      this.changeLastNumberToPositive(lastOperationIndex);
+    } else if (lastNumberIsPositive) {
+      this.changeLastNumberToNegative(lastOperation, lastOperationIndex);
     }
   }
 
-  changeLastNumberToNegative() {
-    if (this.lastOperation === '+') {
+  changeLastNumberToNegative(lastOperation, lastOperationIndex) {
+    if (lastOperation === '+') {
       this.expression = this.replaceCharacterAtString(
         this.expression,
-        this.lastOperationIndex,
+        lastOperationIndex,
         '-'
       );
     } else {
       this.expression = this.insertCharacterAtString(
         this.expression,
-        this.lastOperationIndex + 1,
+        lastOperationIndex + 1,
         '-'
       );
 
@@ -190,21 +154,19 @@ class CalculatorModel {
     }
   }
 
-  changeLastNumberToPositive() {
-    const prevSignIsNumber = !isNaN(
-      this.expression[this.lastOperationIndex - 1]
-    );
+  changeLastNumberToPositive(lastOperationIndex) {
+    const prevSignIsNumber = !isNaN(this.expression[lastOperationIndex - 1]);
 
     if (prevSignIsNumber) {
       this.expression = this.replaceCharacterAtString(
         this.expression,
-        this.lastOperationIndex,
+        lastOperationIndex,
         '+'
       );
     } else if (!prevSignIsNumber) {
       this.expression = this.replaceCharacterAtString(
         this.expression,
-        this.lastOperationIndex,
+        lastOperationIndex,
         ''
       );
 
@@ -226,24 +188,15 @@ class CalculatorModel {
     return firstPart + char + secondPart;
   }
 
-  getPackageData() {
-    const expression = this.expression;
-    const result = this.result;
-
-    return { expression, result };
-  }
-
-  setExpression(expression) {
-    this.expression = expression;
-  }
-
-  getExpression() {
-    return this.expression;
+  updateExpression(expressionNewPart) {
+    this.expression += expressionNewPart;
   }
 
   calculateResult() {
     if (this.isComputedExpression()) {
       this.result = parseFloat(eval(this.expression).toPrecision(12));
+    } else {
+      this.result = '';
     }
   }
 
@@ -260,12 +213,63 @@ class CalculatorModel {
     }
   }
 
-  setResult(result) {
-    this.result = result;
+  refreshAllState() {
+    this.refreshLastNumber();
+    this.refreshLastNumberInfo();
+    this.refreshLastExpressionElem();
+    this.refreshLastExpressionElemInfo();
+    this.willBeNewNumber = this.lastElementIsOperation;
+    this.minusCaseWorked =
+      this.expression.slice(-2) === '*-' ||
+      this.expression.slice(-2) === '/-' ||
+      this.expression === '-';
   }
 
-  getResult() {
-    return this.result;
+  refreshLastNumber() {
+    this.lastNumber = '';
+    let lastNumberFound = false;
+
+    for (let i = this.expression.length - 1; i >= 0; i--) {
+      if (!isNaN(this.expression[i]) || this.expression[i] === '.') {
+        this.lastNumber += this.expression[i];
+
+        lastNumberFound = true;
+      } else if (isNaN(this.expression[i]) && lastNumberFound) {
+        break;
+      }
+    }
+
+    this.lastNumber = this.lastNumber.split('').reverse().join('');
+  }
+
+  refreshLastNumberInfo() {
+    this.lastNumberStartIndex = this.expression.lastIndexOf(this.lastNumber);
+    this.lastNumberHasDot = this.lastNumber.includes('.');
+  }
+
+  refreshLastExpressionElem() {
+    if (this.expression.slice(-5) === '/ 100') {
+      this.lastExpressionElem = '%';
+    } else {
+      this.lastExpressionElem = this.expression[this.expression.length - 1];
+    }
+  }
+
+  refreshLastExpressionElemInfo() {
+    this.lastElementIsNumber = !isNaN(this.lastExpressionElem);
+    this.lastElementIsOperation =
+      this.lastExpressionElem === '-' ||
+      this.lastExpressionElem === '*' ||
+      this.lastExpressionElem === '+' ||
+      this.lastExpressionElem === '/';
+    this.lastElementIsPercentage = this.lastExpressionElem === '%';
+  }
+
+  getPackageData() {
+    const expression = this.expression;
+    const result = this.result;
+
+    return { expression, result };
   }
 }
 
@@ -287,31 +291,31 @@ class CalculatorController {
   dotBtnHandler() {
     this.model.addDot();
 
-    return this.model.getExpression();
+    return this.model.expression;
   }
 
   plusBtnHandler() {
     this.model.addSimpleMathOperation('+');
 
-    return this.model.getExpression();
+    return this.model.expression;
   }
 
   minusBtnHandler() {
     this.model.addSimpleMathOperation('-');
 
-    return this.model.getExpression();
+    return this.model.expression;
   }
 
   divideBtnHandler() {
     this.model.addSimpleMathOperation('/');
 
-    return this.model.getExpression();
+    return this.model.expression;
   }
 
   multiplyBtnHandler() {
     this.model.addSimpleMathOperation('*');
 
-    return this.model.getExpression();
+    return this.model.expression;
   }
 
   percentageBtnHandler() {
@@ -328,8 +332,16 @@ class CalculatorController {
     return this.model.getPackageData();
   }
 
-  refreshBtnHandler() {
-    this.model.refresh();
+  allCleanBtnHandler() {
+    this.model.allClean();
+
+    return this.model.getPackageData();
+  }
+
+  backspaceBtnHandler() {
+    this.model.backspace();
+
+    this.model.calculateResult();
 
     return this.model.getPackageData();
   }
@@ -365,8 +377,20 @@ class CalculatorView {
     this.printResult(result);
   }
 
-  onRefreshBtnClick() {
-    const data = this.controller.refreshBtnHandler();
+  onAllCleanBtnClick() {
+    const data = this.controller.allCleanBtnHandler();
+
+    const expression = data.expression;
+    const result = data.result;
+
+    const prettyExpression = this.getPrettyExpression(expression);
+
+    this.printExpression(prettyExpression);
+    this.printResult(result);
+  }
+
+  onBackspaceBtnClick() {
+    const data = this.controller.backspaceBtnHandler();
 
     const expression = data.expression;
     const result = data.result;
@@ -490,8 +514,11 @@ class CalculatorView {
     const equalBtn = document.querySelector('#equal');
     equalBtn.addEventListener('click', () => this.onEqualBtnClick());
 
-    const refreshBtn = document.querySelector('#refresh-btn');
-    refreshBtn.addEventListener('click', () => this.onRefreshBtnClick());
+    const allCleanBtn = document.querySelector('#all-clean');
+    allCleanBtn.addEventListener('click', () => this.onAllCleanBtnClick());
+
+    const backspaceBtn = document.querySelector('#backspace-btn');
+    backspaceBtn.addEventListener('click', () => this.onBackspaceBtnClick());
 
     const plusMinusBtn = document.querySelector('#plus-minus-btn');
     plusMinusBtn.addEventListener('click', () => this.onPlusMinusBtnClick());
