@@ -481,6 +481,66 @@ class CalculatorView {
     this.printResult(result);
   }
 
+  onWhiteThemeBtnClick() {
+    const calculatorDiv = document.querySelector('.calculator');
+    calculatorDiv.classList.add('calculator--light-theme');
+
+    const themesDiv = document.querySelector('.calculator__themes');
+    themesDiv.classList.add('calculator__themes--light-theme');
+
+    const btnsDiv = document.querySelector('.calculator__btns');
+    btnsDiv.classList.add('calculator__btns--light-theme');
+
+    this.numberBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.add('calculator__btn--light-theme')
+    );
+
+    const greenBtns = document.querySelectorAll('.calculator__btn--green');
+    const redBtns = document.querySelectorAll('.calculator__btn--red');
+    greenBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.add('calculator__btn--green--light-theme')
+    );
+    redBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.add('calculator__btn--red--light-theme')
+    );
+
+    this.backspaceBtn.classList.add('calculator__btn--light-theme');
+    this.dotBtn.classList.add('calculator__btn--light-theme');
+
+    this.whiteThemeBtn.classList.add('calculator__white-theme--active');
+    this.darkThemeBtn.classList.remove('calculator__dark-theme--active');
+  }
+
+  onDarkThemeBtnClick() {
+    const calculatorDiv = document.querySelector('.calculator');
+    calculatorDiv.classList.remove('calculator--light-theme');
+
+    const themesDiv = document.querySelector('.calculator__themes');
+    themesDiv.classList.remove('calculator__themes--light-theme');
+
+    const btnsDiv = document.querySelector('.calculator__btns');
+    btnsDiv.classList.remove('calculator__btns--light-theme');
+
+    this.numberBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.remove('calculator__btn--light-theme')
+    );
+
+    const greenBtns = document.querySelectorAll('.calculator__btn--green');
+    const redBtns = document.querySelectorAll('.calculator__btn--red');
+    greenBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.remove('calculator__btn--green--light-theme')
+    );
+    redBtns.forEach((calculatorBtn) =>
+      calculatorBtn.classList.remove('calculator__btn--red--light-theme')
+    );
+
+    this.backspaceBtn.classList.remove('calculator__btn--light-theme');
+    this.dotBtn.classList.remove('calculator__btn--light-theme');
+
+    this.whiteThemeBtn.classList.remove('calculator__white-theme--active');
+    this.darkThemeBtn.classList.add('calculator__dark-theme--active');
+  }
+
   getPrettyExpression(expression) {
     const plusIcon = this.plusBtn.children[0].cloneNode(true);
     const minusIcon = this.minusBtn.children[0].cloneNode(true);
@@ -555,6 +615,15 @@ class CalculatorView {
     this.plusMinusBtn = document.querySelector('#plus-minus-btn');
     this.plusMinusBtn.addEventListener('click', () =>
       this.onPlusMinusBtnClick()
+    );
+
+    this.whiteThemeBtn = document.querySelector('.calculator__white-theme');
+    this.whiteThemeBtn.addEventListener('click', () =>
+      this.onWhiteThemeBtnClick()
+    );
+    this.darkThemeBtn = document.querySelector('.calculator__dark-theme');
+    this.darkThemeBtn.addEventListener('click', () =>
+      this.onDarkThemeBtnClick()
     );
   }
 }
