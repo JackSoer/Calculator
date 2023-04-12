@@ -64,11 +64,10 @@
   }
 
   &__expression {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    text-align: right;
     white-space: nowrap;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
     font-size: 55px;
     font-weight: 700;
@@ -84,10 +83,10 @@
   }
 
   &__result {
-    display: flex;
-    justify-content: flex-end;
+    text-align: right;
     white-space: nowrap;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
     font-size: 27px;
     margin-bottom: 10px;

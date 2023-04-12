@@ -282,10 +282,8 @@ class CalculatorController {
     this.model = model;
   }
 
-  numberBtnsHandler(e) {
-    const currentNumber = e.target.innerText;
-
-    this.model.addNumber(currentNumber);
+  numberBtnsHandler(newNumber) {
+    this.model.addNumber(newNumber);
 
     this.model.calculateResult();
 
@@ -366,11 +364,12 @@ class CalculatorView {
     this.expressionDiv = document.querySelector('.calculator__expression');
     this.resultDiv = document.querySelector('.calculator__result');
 
-    this.bindListeners();
+    this.bindListenersByClick();
+    this.bindListenersByKeys();
   }
 
-  onNumberBtnClick(e) {
-    const data = this.controller.numberBtnsHandler(e);
+  onNumberBtnClick(newNumber) {
+    const data = this.controller.numberBtnsHandler(newNumber);
 
     const expression = data.expression;
     const result = data.result;
@@ -579,10 +578,12 @@ class CalculatorView {
     this.resultDiv.innerHTML = result;
   }
 
-  bindListeners() {
+  bindListenersByClick() {
     this.numberBtns = document.querySelectorAll('#num-btn');
     this.numberBtns.forEach((numberBtn) =>
-      numberBtn.addEventListener('click', (e) => this.onNumberBtnClick(e))
+      numberBtn.addEventListener('click', (e) =>
+        this.onNumberBtnClick(e.target.innerText)
+      )
     );
     this.dotBtn = document.querySelector('#dot-btn');
     this.dotBtn.addEventListener('click', () => this.onDotBtnClick());
@@ -625,6 +626,30 @@ class CalculatorView {
     this.darkThemeBtn.addEventListener('click', () =>
       this.onDarkThemeBtnClick()
     );
+  }
+
+  bindListenersByKeys() {
+    for (let i = 0; i <= 9; i++) {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === `${i}`) {
+          this.onNumberBtnClick(`${i}`);
+        }
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '.') this.onDotBtnClick();
+      else if (e.key === '+') this.onPlusBtnClick();
+      else if (e.key === '-') this.onMinusBtnClick();
+      else if (e.key === '*') this.onMultiplyBtnClick();
+      else if (e.key === '/') this.onDivideBtnClick();
+      else if (e.key === '=') this.onEqualBtnClick();
+      else if (e.key === 'Escape') this.onAllCleanBtnClick();
+      else if (e.key === 'Backspace') this.onBackspaceBtnClick();
+      else if (e.key === '%') this.onPercentageClick();
+      else if (e.key === '`') this.onPlusMinusBtnClick();
+      else if (e.code === 'KeyD') this.onDarkThemeBtnClick();
+      else if (e.code === 'KeyL') this.onWhiteThemeBtnClick();
+    });
   }
 }
 
