@@ -28,6 +28,10 @@ class CalculatorModel {
   }
 
   addDot() {
+    if (this.expression === 'Infinity') {
+      return;
+    }
+
     if (this.lastNumberHasDot !== true && this.lastElementIsNumber) {
       this.updateExpression('.');
 
@@ -75,6 +79,10 @@ class CalculatorModel {
   }
 
   addPercentage() {
+    if (this.expression === 'Infinity') {
+      return;
+    }
+
     if (this.lastElementIsNumber) {
       this.updateExpression('/ 100');
 
@@ -123,6 +131,10 @@ class CalculatorModel {
   }
 
   toogleSignLastNumber() {
+    if (this.expression === 'Infinity') {
+      return;
+    }
+
     const lastOperationIndex = this.lastNumberStartIndex - 1;
     const lastOperation = this.expression[lastOperationIndex];
 
@@ -189,6 +201,10 @@ class CalculatorModel {
   }
 
   updateExpression(expressionNewPart) {
+    if (this.expression === 'Infinity') {
+      this.allClean();
+    }
+
     this.expression += expressionNewPart;
   }
 
@@ -242,8 +258,6 @@ class CalculatorModel {
     }
 
     this.lastNumber = this.lastNumber.split('').reverse().join('');
-
-    console.log(this.lastNumber);
   }
 
   refreshLastNumberInfo() {
@@ -260,6 +274,12 @@ class CalculatorModel {
   }
 
   refreshLastExpressionElemInfo() {
+    if (this.expression === '') {
+      this.lastElementIsNumber = false;
+      this.lastElementIsOperation = false;
+      this.lastElementIsPercentage = false;
+    }
+
     this.lastElementIsNumber = !isNaN(this.lastExpressionElem);
     this.lastElementIsOperation =
       this.lastExpressionElem === '-' ||
